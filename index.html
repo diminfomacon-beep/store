@@ -12,20 +12,21 @@
     <script>
         // Listen for messages from Google Sites
         window.addEventListener("message", function(event) {
-            let cart = JSON.parse(localStorage.getItem('cart') || '[]');
+            let cart = JSON.parse(localStorage.getItem('dim_bright_cart') || '[]');
             
             if (event.data.type === "ADD") {
                 cart.push(event.data.product);
-                localStorage.setItem('cart', JSON.stringify(cart));
+                localStorage.setItem('dim_bright_cart', JSON.stringify(cart));
+            }
+            
+            if (event.data.type === "CLEAR") {
+                localStorage.removeItem('dim_bright_cart');
             }
             
             if (event.data.type === "GET") {
-                // Send the cart data back to Google Sites
                 window.parent.postMessage({type: "CART_DATA", cart: cart}, "*");
             }
-            render();
         });
-
         function render() {
             let cart = JSON.parse(localStorage.getItem('cart') || '[]');
             const display = document.getElementById('cart-content');
