@@ -1,22 +1,58 @@
 <!DOCTYPE html>
 <html>
+<head>
+    <title>Dim Bright Ideas - Cart Brain</title>
+</head>
 <body>
 <script>
     const KEY = 'dim_bright_cart';
+
     window.addEventListener("message", function(event) {
-        let cart = JSON.parse(localStorage.getItem(KEY) || '[]');
+        // 1. Get current data and ensure it's an array
+        let rawData = localStorage.getItem(KEY);
+        let cart = [];
+        try {
+            cart = JSON.parse(rawData) || [];
+            if (!Array.isArray(cart)) cart = [];
+        } catch(e) {
+            cart = [];
+        }
+
+        // 2. Handle ADDING items
         if (event.data.type === "ADD") {
             const p = event.data.product;
-            const existing = cart.find(i => i.id === p.id);
-            if (existing) { existing.qty += 1; } else { cart.push(p); }
+            
+            // SANITIZE: Force price and qty to be real numbers before saving
+            const cleanProduct = {
+                id: p.id || Date.now().toString(),
+                name: p.name || "Unknown Item",
+                price: parseFloat(p.price) || 0,
+                qty: parseInt(p.qty) || 1
+            };
+
+            const existing = cart.find(i => i.id === cleanProduct.id);
+            if (existing) {
+                existing.qty += cleanProduct.qty;
+            } else {
+                cart.push(cleanProduct);
+            }
             localStorage.setItem(KEY, JSON.stringify(cart));
         }
-        if (event.data.type === "CLEAR") { localStorage.removeItem(KEY); }
+
+        // 3. Handle CLEARING the cart (after checkout)
+        if (event.data.type === "CLEAR") {
+            localStorage.removeItem(KEY);
+            cart = [];
+        }
+
+        // 4. Handle REQUESTING data (for Cart/Floating Icon)
         if (event.data.type === "GET") {
-            window.parent.postMessage({type: "CART_DATA", cart: cart}, "*");
+            window.parent.postMessage({
+                type: "CART_DATA", 
+                cart: cart
+            }, "*");
         }
     });
 </script>
 </body>
 </html>
-
