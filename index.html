@@ -1,39 +1,22 @@
 <!DOCTYPE html>
 <html>
-<head>
-    <style>
-        body { font-family: sans-serif; margin: 0; padding: 10px; }
-        .item { display: flex; justify-content: space-between; padding: 5px 0; border-bottom: 1px solid #eee; }
-    </style>
-</head>
 <body>
-    <div id="cart-content">Loading...</div>
-    
-    <script>
-        // Listen for messages from Google Sites
-        window.addEventListener("message", function(event) {
-            let cart = JSON.parse(localStorage.getItem('dim_bright_cart') || '[]');
-            
-            if (event.data.type === "ADD") {
-                cart.push(event.data.product);
-                localStorage.setItem('dim_bright_cart', JSON.stringify(cart));
-            }
-            
-            if (event.data.type === "CLEAR") {
-                localStorage.removeItem('dim_bright_cart');
-            }
-            
-            if (event.data.type === "GET") {
-                window.parent.postMessage({type: "CART_DATA", cart: cart}, "*");
-            }
-        });
-        function render() {
-            let cart = JSON.parse(localStorage.getItem('cart') || '[]');
-            const display = document.getElementById('cart-content');
-            if (cart.length === 0) { display.innerHTML = "Cart is empty"; return; }
-            display.innerHTML = cart.map(i => `<div class="item"><span>${i.name}</span><span>$${i.price}</span></div>`).join('');
+<script>
+    const KEY = 'dim_bright_cart';
+    window.addEventListener("message", function(event) {
+        let cart = JSON.parse(localStorage.getItem(KEY) || '[]');
+        if (event.data.type === "ADD") {
+            const p = event.data.product;
+            const existing = cart.find(i => i.id === p.id);
+            if (existing) { existing.qty += 1; } else { cart.push(p); }
+            localStorage.setItem(KEY, JSON.stringify(cart));
         }
-        render();
-    </script>
+        if (event.data.type === "CLEAR") { localStorage.removeItem(KEY); }
+        if (event.data.type === "GET") {
+            window.parent.postMessage({type: "CART_DATA", cart: cart}, "*");
+        }
+    });
+</script>
 </body>
 </html>
+
