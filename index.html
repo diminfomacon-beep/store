@@ -1,58 +1,1194 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Dim Bright Ideas - Cart Brain</title>
-</head>
-<body>
-<script>
-    const KEY = 'dim_bright_cart';
+<style>
+  .dim-app-container {
+    font-family: Arial, sans-serif;
+    max-width: 1100px;
+    margin: 20px auto;
+    padding: 20px;
+    background: #2F6B64;
+    border-radius: 8px;
+    box-shadow: 0 3px 12px rgba(0,0,0,0.08);
+  }
 
-    window.addEventListener("message", function(event) {
-        // 1. Get current data and ensure it's an array
-        let rawData = localStorage.getItem(KEY);
-        let cart = [];
-        try {
-            cart = JSON.parse(rawData) || [];
-            if (!Array.isArray(cart)) cart = [];
-        } catch(e) {
-            cart = [];
-        }
+  .dim-app-nav {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+  }
+  .dim-nav-btn {
+    padding: 8px 14px;
+    border-radius: 10px;
+    border: none;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    text-transform: uppercase;
+    background: #FEE84A;
+    color: #000;
+    transition: 0.15s;
+  }
+  .dim-nav-btn.active {
+    background: #ED7800;
+    color: #c6dbd7;
+  }
+  .dim-nav-btn:hover {
+    transform: translateY(-2px);
+  }
 
-        // 2. Handle ADDING items
-        if (event.data.type === "ADD") {
-            const p = event.data.product;
+  .dim-view {
+    display: none;
+  }
+  .dim-view.active {
+    display: block;
+  }
+
+  /* Products grid */
+  .dim-products-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+    
+    padding: 20px;
+    margin-top: 20px
+  }
+
+  .dim-product-name {
+    font-weight: 600;
+    margin-bottom: 4px;
+    
+  }
+  .dim-product-price {
+    margin-bottom: 8px;
+    color: #000;
+  }
+
+  /* Buttons */
+  .dim-btn {
+    padding: 8px 14px;
+    border-radius: 10px;
+    border: none;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 600;
+    text-transform: uppercase;
+    transition: 0.15s;
+  }
+  .dim-btn-primary {
+    background: linear-gradient(180deg, #0ea6b1, #1c4641 );
+    color: #fff;
+  }
+
+  .dim-btn-checkout {
+    background: linear-gradient(180deg, #0ea6b1, #1c4641 );
+    color: #fff;
+  }
+  .dim-btn-secondary {
+    background: #e0e0e0;
+    color: #333;
+  }
+  .dim-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 3px 8px rgba(0,0,0,0.2);
+  }
+  .dim-btn:active {
+    transform: translateY(1px) scale(0.97);
+  }
+
+  /* Cart table */
+  .dim-cart-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+  }
+  .dim-cart-table th, .dim-cart-table td {
+    padding: 8px;
+    border-bottom: 1px solid #ddd;
+    text-align: left;
+  }
+  .dim-cart-total-line {
+    text-align: right;
+    margin-top: 10px;
+  }
+
+  /* Checkout layout */
+  .dim-checkout-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+  .dim-checkout-column {
+    flex: 1 1 280px;
+    min-width: 260px;
+  }
+  .dim-section-title {
+    font-size: 18px;
+    margin-bottom: 8px;
+    border-bottom: 1px solid #ddd;
+    padding-bottom: 4px;
+  }
+  .dim-form-group {
+    margin-bottom: 8px;
+  }
+  .dim-form-group label {
+    display: block;
+    font-size: 13px;
+    margin-bottom: 3px;
+  }
+  .dim-form-group input,
+  .dim-form-group select {
+    width: 100%;
+    padding: 6px;
+    font-size: 13px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+  }
+
+  /* Floating cart */
+  .dim-floating-cart-wrapper {
+    position: fixed;
+    right: 20px;
+    bottom: 20px;
+    z-index: 9999;
+  }
+  .dim-floating-cart-icon {
+    position: relative;
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #ffb347, #ffcc33);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+    cursor: pointer;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+  }
+  .dim-floating-cart-icon:hover {
+    transform: translateY(-3px) scale(1.03);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.35);
+  }
+  .dim-floating-cart-icon:active {
+    transform: translateY(1px) scale(0.97);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
+  }
+  .dim-floating-cart-count {
+    position: absolute;
+    top: -6px;
+    right: -6px;
+    min-width: 20px;
+    height: 20px;
+    padding: 0 4px;
+    border-radius: 10px;
+    background: #e53935;
+    color: #fff;
+    font-size: 12px;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 0 0 2px #fff;
+  }
+
+  .dim-terms-text {
+    font-size: 12px;
+  }
+  .dim-terms-text a {
+    color: #1976d2;
+  }
+
+  .dim-paypal-redirect-box {
+    margin-top: 16px;
+    padding: 10px;
+    background: #fff3cd;
+    border-radius: 6px;
+    border: 1px solid #ffeeba;
+    font-size: 13px;
+  }
+  .dim-product-card img {
+    height: 180px;
+    object-fit: cover;
+    margin-bottom: 10px;
+     background:#fff;
+  }
+
+  .dim-variation-select {
+    width: 100%;
+    padding: 5px;
+    margin-bottom: 10px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+  }
+
+  .dim-product-card p {
+    color: #666;
+    line-height: 1.4;
+    height: flex; /* Limits description height for alignment */
+    overflow: hidden;
+  }
+  .dim-product-card {
+  background: #CAE4DB;
+  border-radius: 8px;
+  padding: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* Centers items horizontally */
+}
+
+/* Ensure the button and select don't stretch too wide if you use the flex layout */
+.dim-variation-select, .dim-btn {
+  width: 90% !important; 
+}
+
+/* Push price + options section downward */
+.dim-product-price {
+  margin-top: auto;
+}
+
+/* Keep variation dropdown just above the button */
+.dim-variation-select {
+  margin-bottom: 10px;
+}
+
+/* Keep button at very bottom */
+.dim-product-card .dim-btn-primary {
+  margin-top: 0;
+}
+/* Main product image zoom on hover */
+.dim-product-card img.main-product-image {
+  transition: transform 0.3s ease;
+}
+
+.dim-product-card img.main-product-image:hover {
+  transform: scale(1.3); /* zooms 20% on hover */
+  z-index: 10;
+  position: relative;
+}
+.dim-search-filter {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 16px;
+  justify-content: center;
+}
+
+.dim-search-filter input,
+.dim-search-filter select {
+  padding: 8px 10px;
+  font-size: 14px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  width: 200px;
+}
+
+.dim-search-filter input:focus,
+.dim-search-filter select:focus {
+  outline: none;
+  border-color: #1976d2;
+}
+
+.dim-view.active {
+  background: #e4faf2;
+  border-radius: 8px;
+  padding: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+#dim-cart-go-checkout {
+    width: 200px;       /* fixed width */
+    display: block;     /* allows margin to work */
+    text-align: center; /* centers text inside the button */
+    margin-left: 0;     /* aligns button to the left */
+}
+</style>
+
+<div class="dim-app-container">
+  <div class="dim-app-nav">
+    <button class="dim-nav-btn active" data-view="home">Home</button>
+    <button class="dim-nav-btn" data-view="cart">Cart</button>
+    <button class="dim-nav-btn" data-view="checkout">Checkout</button>
+  </div>
+
+  <!-- HOME VIEW -->
+ <div id="dim-view-home" class="dim-view active">
+    <h2 style="text-align:center;">DIM Bright Ideas Store</h2>
+    <p style="text-align:center;">Browse our products below. Choose your design, design your own in our design studio or send us your custom design. Add items to your cart and proceed to checkout.</p>
+      <div class="dim-search-filter">
+        <input type="text" id="dim-search-input" placeholder="Search products..." />
+        <select id="dim-filter-select">
+          <option value="">All Categories</option>
+          <option value="tshirt">T-Shirts</option>
+          <option value="mug">Mugs</option>
+          <option value="games">Games</option>
+          <option value="home">Home and Decor</option>
+          <option value="bottles">Water Bottles</option>
+          <option value="tumbler">Tumblers</option>
+          <option value="bag">Bags</option>
+          <!-- Add more categories as needed -->
+        </select>
+      </div>
+    <div class="dim-products-grid" id="dim-products-grid">
+      <!-- Products injected by JS -->
+    </div>
+  </div>
+
+<!-- CART VIEW -->
+<div id="dim-view-cart" class="dim-view">
+  <h2>Your Cart</h2>
+  <div id="dim-cart-empty">Your cart is empty.</div>
+  <table class="dim-cart-table" id="dim-cart-table">
+    <thead>
+      <tr><th>Item</th><th>Price</th><th>Qty</th><th>Total</th></tr>
+    </thead>
+    <tbody id="dim-cart-body"></tbody>
+  </table>
+
+  <!-- Totals -->
+  <div class="dim-cart-total-line" style="text-align:right;">
+    <strong>Subtotal:</strong> <span id="dim-cart-subtotal">$0.00</span>
+  </div>
+
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 16px;">
+  
+  <!-- Clear Cart Button -->
+  <button 
+    id="dim-clear-cart-btn"
+    style="
+      background: linear-gradient(180deg, #7481bb, #927bb8 ); 
+      color: #000000;
+      font-weight: bold;
+      font-size: 14px;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      flex-shrink: 0;
+    ">
+    Clear Cart
+  </button>
+
+  <!-- Proceed to Checkout Button -->
+  <button 
+    id="dim-cart-go-checkout"
+    style="
+      background: linear-gradient(180deg, #0ea6b1, #1c4641 );
+      color: #fff;
+      font-weight: bold;
+      font-size: 14px;
+      padding: 10px 0;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      width: 200px; /* fixed width */
+      text-align: center;
+      flex-shrink: 0;
+    ">
+    Proceed to Checkout
+  </button>
+
+</div>
+
+</div>
+
+
+
+  <!-- CHECKOUT VIEW -->
+  <div id="dim-view-checkout" class="dim-view">
+    <h2>Checkout</h2>
+    <div id="dim-checkout-empty">Your cart is empty. Please add items before checking out.</div>
+
+    <div id="dim-checkout-main" style="display:none;">
+      <div class="dim-checkout-grid">
+        <!-- Left: delivery + customer info -->
+        <div class="dim-checkout-column">
+          <div class="dim-section-title">Delivery Method</div>
+          <label>
+            <input type="radio" name="dim-delivery" id="dim-delivery-shipping" value="shipping" checked>
+            Shipping
+          </label>
+          <label>
+            <input type="radio" name="dim-delivery" id="dim-delivery-pickup" value="pickup">
+            Local Pickup (Macon, GA)
+          </label>
+
+          <div id="dim-shipping-section">
+            <div class="dim-section-title" style="margin-top:10px;">Shipping Information</div>
+            <div class="dim-form-group">
+              <label for="dim-ship-name">Full Name *</label>
+                <input 
+                  type="text"
+                  id="dim-ship-name"
+                  required
+                  pattern="[A-Za-z\s\-']{2,50}"
+                  title="Please enter a valid name (letters only)"
+                  maxlength="50"
+                >
+            </div>
+            <div class="dim-form-group">
+              <label for="dim-ship-email">Email Address *</label>
+                <input 
+                  type="email"
+                  id="dim-ship-email"
+                  required
+                  maxlength="100"
+                >
+                            </div>
+            <div class="dim-form-group">
+              <label for="dim-ship-address1">Address Line 1 *</label>
+                <input 
+                  type="text"
+                  id="dim-ship-address1"
+                  required
+                  maxlength="100"
+                >
+            </div>
+            <div class="dim-form-group">
+              <label for="dim-ship-address2">Address Line 2</label>
+               <input 
+                  type="text"
+                  id="dim-ship-address2"
+                  maxlength="100"
+                >
+            </div>
+            <div class="dim-form-group">
+              <label for="dim-ship-city">City *</label>
+                <input  
+                  type="text"
+                  id="dim-ship-city"
+                  required
+                  maxlength="100"
+                >
+            </div>
+            <div class="dim-form-group">
+              <label for="dim-ship-state">State *</label>
+              <select id="dim-ship-state" required>
+                <option value="">Select state</option>
+                <option value="AL">Alabama</option>
+                <option value="AK">Alaska</option>
+                <option value="AZ">Arizona</option>
+                <option value="AR">Arkansas</option>
+                <option value="CA">California</option>
+                <option value="CO">Colorado</option>
+                <option value="CT">Connecticut</option>
+                <option value="DE">Delaware</option>
+                <option value="FL">Florida</option>
+                <option value="GA">Georgia</option>
+                <option value="HI">Hawaii</option>
+                <option value="ID">Idaho</option>
+                <option value="IL">Illinois</option>
+                <option value="IN">Indiana</option>
+                <option value="IA">Iowa</option>
+                <option value="KS">Kansas</option>
+                <option value="KY">Kentucky</option>
+                <option value="LA">Louisiana</option>
+                <option value="ME">Maine</option>
+                <option value="MD">Maryland</option>
+                <option value="MA">Massachusetts</option>
+                <option value="MI">Michigan</option>
+                <option value="MN">Minnesota</option>
+                <option value="MS">Mississippi</option>
+                <option value="MO">Missouri</option>
+                <option value="MT">Montana</option>
+                <option value="NE">Nebraska</option>
+                <option value="NV">Nevada</option>
+                <option value="NH">New Hampshire</option>
+                <option value="NJ">New Jersey</option>
+                <option value="NM">New Mexico</option>
+                <option value="NY">New York</option>
+                <option value="NC">North Carolina</option>
+                <option value="ND">North Dakota</option>
+                <option value="OH">Ohio</option>
+                <option value="OK">Oklahoma</option>
+                <option value="OR">Oregon</option>
+                <option value="PA">Pennsylvania</option>
+                <option value="RI">Rhode Island</option>
+                <option value="SC">South Carolina</option>
+                <option value="SD">South Dakota</option>
+                <option value="TN">Tennessee</option>
+                <option value="TX">Texas</option>
+                <option value="UT">Utah</option>
+                <option value="VT">Vermont</option>
+                <option value="VA">Virginia</option>
+                <option value="WA">Washington</option>
+                <option value="WV">West Virginia</option>
+                <option value="WI">Wisconsin</option>
+                <option value="WY">Wyoming</option>
+              </select>
+            </div>
+            <div class="dim-form-group">
+              <label for="dim-ship-zip">ZIP Code *</label>
+                <input 
+                  type="text"
+                  id="dim-ship-zip"
+                  required
+                  pattern="\d{5}"
+                  inputmode="numeric"
+                  maxlength="5"
+                  title="ZIP code must be 5 digits"
+                >
+            </div>
+          </div>
+
+          <div id="dim-pickup-section" style="display:none;">
+            <div class="dim-section-title" style="margin-top:10px;">Pickup Information</div>
+            <div class="dim-form-group">
+              <label for="dim-pickup-name">Full Name *</label>
+               <input 
+                  type="text"
+                  id="dim-pickup-name"
+                  required
+                  pattern="[A-Za-z\s\-']{2,50}"
+                  title="Please enter a valid name (letters only)"
+                  maxlength="50"
+                >
+            </div>
+            <div class="dim-form-group">
+              <label for="dim-pickup-email">Email Address *</label>
+                <input 
+                  type="email"
+                  id="dim-pickup-email"
+                  required
+                  maxlength="100"
+                >
+            </div>
+            <div class="dim-form-group">
+              <label for="dim-pickup-phone">Phone Number (optional)</label>
+                <input 
+                  type="tel"
+                  id="dim-pickup-phone"
+                  pattern="\d{10}"
+                  inputmode="numeric"
+                  maxlength="10"
+                  title="Enter a 10 digit phone number"
+                >
+            </div>
+          </div>
+
+          <div style="margin-top:10px;" class="dim-terms-text">
+            <label>
+              <input type="checkbox" id="dim-terms-checkbox">
+              I have read and agree to the
+              <a href="https://www.dimbrightideas.com/terms-conditions" target="_top">Terms and Conditions</a>.
+            </label>
+          </div>
+
+          <div style="margin-top:10px;">
+            <button class="dim-btn dim-btn-secondary" id="dim-checkout-back-cart">Return to Cart</button>
+          </div>
+
+          <div class="dim-paypal-redirect-box">
+            When you click the PayPal button below, you will be redirected to PayPal to complete your payment. After payment,
+            you will return to DIM Bright Ideas.
+          </div>
+        </div>
+
+        <!-- Right: order summary + totals + PayPal -->
+        <div class="dim-checkout-column">
+          <div class="dim-section-title">Order Summary</div>
+          <table class="dim-cart-table">
+            <thead>
+              <tr><th>Item</th><th>Price</th><th>Qty</th><th>Total</th></tr>
+            </thead>
+            <tbody id="dim-checkout-items-body"></tbody>
+          <tfoot>
+            <tr>
+              <td colspan="3" style="text-align:right;">Subtotal:</td>
+              <td id="dim-checkout-subtotal" style="text-align:right;">$0.00</td>
+            </tr>
+            <tr>
+              <td colspan="3" style="text-align:right;">Shipping:</td>
+              <td id="dim-checkout-shipping" style="text-align:right;">$0.00</td>
+            </tr>
+            <tr>
+              <td colspan="3" style="text-align:right;">Sales Tax:</td>
+              <td id="dim-checkout-tax" style="text-align:right;">$0.00</td>
+            </tr>
+            <tr>
+              <td colspan="3" style="text-align:right; font-weight:bold;">Total:</td>
+              <td id="dim-checkout-total" style="text-align:right; font-weight:bold;">$0.00</td>
+            </tr>   
+      </table>
+         
+
+          <!-- PayPal Standard Checkout link -->
+          <div style="display: flex; justify-content: flex-end;">
+            <form id="dim-paypal-form" action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_top">
+
+            <input type="hidden" name="cmd" value="_cart">
+            <input type="hidden" name="upload" value="1">
+
+            <input type="hidden" name="business" value="attestedfs@gmail.com">
+            <input type="hidden" name="currency_code" value="USD">
+
+            <input type="hidden" name="return" value="https://www.dimbrightideas.com/home?checkout=success">
+            <input type="hidden" name="cancel_return" value="https://www.dimbrightideas.com/store">
+
+            <div id="dim-paypal-hidden-fields"></div>
+          
             
-            // SANITIZE: Force price and qty to be real numbers before saving
-            const cleanProduct = {
-                id: p.id || Date.now().toString(),
-                name: p.name || "Unknown Item",
-                price: parseFloat(p.price) || 0,
-                qty: parseInt(p.qty) || 1
-            };
+              <button id="dim-paypal-checkout-button" style="
+                background-color: #003087;  /* PayPal blue */
+                color: #e9e5e5;             /* White text */
+                font-weight: bold;
+                font-size: 16px;
+                padding: 12px 24px;
+                border: none;
+                border-radius: 10px;
+                cursor: pointer;
+                display: flex;
+                align-items: center;
+                gap: 8px;
+              ">
+                <img src="https://www.paypalobjects.com/webstatic/mktg/logo/pp_cc_mark_111x69.jpg" 
+                    alt="PayPal" style="height:24px;">
+                Pay with PayPal
+              </button>
+            
 
-            const existing = cart.find(i => i.id === cleanProduct.id);
-            if (existing) {
-                existing.qty += cleanProduct.qty;
-            } else {
-                cart.push(cleanProduct);
-            }
-            localStorage.setItem(KEY, JSON.stringify(cart));
-        }
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 
-        // 3. Handle CLEARING the cart (after checkout)
-        if (event.data.type === "CLEAR") {
-            localStorage.removeItem(KEY);
-            cart = [];
-        }
+<!-- Floating Cart -->
+<div class="dim-floating-cart-wrapper">
+  <div class="dim-floating-cart-icon" id="dim-floating-cart-button">
+    <span class="dim-floating-cart-count" id="dim-floating-cart-count">0</span>
+    <svg viewBox="0 0 24 24" width="28" height="28">
+      <path d="M7 4h-2l-1 2h2l2.6 7.59L7.24 16.04C7.09 16.32 7 16.65 7 17a2 2 0 1 0 2 2h6a2 2 0 1 0 2-2c0-.35-.09-.68-.24-.96l1.88-3.76A1 1 0 0 0 18 10H10l-.75-2H20V6H8.42L7.7 4.29A1 1 0 0 0 7 4z"/>
+    </svg>
+  </div>
+</div>
 
-        // 4. Handle REQUESTING data (for Cart/Floating Icon)
-        if (event.data.type === "GET") {
-            window.parent.postMessage({
-                type: "CART_DATA", 
-                cart: cart
-            }, "*");
-        }
+<script>
+var products = [
+  {name: "Rooted in Christ T-Shirt",category: "tshirt",description: "High-quality graphic tee featuring the Rooted in Christ design.",images: ["https://raw.githubusercontent.com/diminfomacon-beep/store-app-full-checkout/main/product-pics/Rooted%20in%20Christ.jpg"],basePrice: 15.99,variations: [{ label: "Small", extra: 0 },{ label: "Medium", extra: 0 },{ label: "XL", extra: 2.00 },{ label: "XXL", extra: 4.00 }]},
+
+  {name: "Cardboard Puzzle",category: "games",description: "9.5x7.5 inches, 30 pieces. Customize it with memories, kids art or whatever your heart desires.",images: ["https://raw.githubusercontent.com/diminfomacon-beep/store-app-full-checkout/main/product-pics/SFS-SPUZ30puzzle_1.png"],basePrice: 10.00},
+
+  {name: "Coffee Cup - 10oz", category: "mug",description: "Double-wall vacuum insulated cup with tinted sliding lid",images: ["https://raw.githubusercontent.com/diminfomacon-beep/store-app-full-checkout/main/product-pics/Coffee%20Mug%20Tumbler.png",],basePrice: 12.00},
+
+  {name: "Candle Jar",category: "home",description: "10oz glass candle jar. Diameter 10 inches and height 3.7 inches. Perfect for gifting and fully customizable",images: ["https://raw.githubusercontent.com/diminfomacon-beep/store-app-full-checkout/main/product-pics/Candle%20Jar.png","https://raw.githubusercontent.com/diminfomacon-beep/store-app-full-checkout/main/product-pics/10CANDLECLEAR1.png"],basePrice: 8.00,variations: [{label: "White", extra: 0},{label: "Clear", extra: 0}]},
+
+  {name: "Kids Water Bottle - 12oz",category: "bottles",description: "Leak proof flip top lid and built in internal straw. Avaiable in multiple colors.",images: ["https://raw.githubusercontent.com/diminfomacon-beep/store-app-full-checkout/main/product-pics/12oz%20Sippy.png","https://raw.githubusercontent.com/diminfomacon-beep/store-app-full-checkout/main/product-pics/12oz%20Sippy%20Cover.png","https://raw.githubusercontent.com/diminfomacon-beep/store-app-full-checkout/main/product-pics/12SUBSIPPYBLUE1.png","https://raw.githubusercontent.com/diminfomacon-beep/store-app-full-checkout/main/product-pics/12oz%20Sippy%20Bottom.png"],basePrice: 15.50,variations: [{label: "Pink with green", extra: 0},{label: "Blue with gray", extra: 0},{label: "Red with gray", extra: 0},{label: "Black with gray", extra: 0},{label: "Pink with Gray", extra: 0},{label: "Orange with yellow", extra: 0}]},
+  
+  {name: "Stemless Wine Glass - 12oz", category: "tumbler",description: "Stemless tumbler shape wineglass withdouble-wall vacuum insulated and clear sliding lid. Comes with a clear straw.",images: ["https://raw.githubusercontent.com/diminfomacon-beep/store-app-full-checkout/main/product-pics/12SUBSTEMLESS1_b840e95b-9ec6-4372-b0e2-1229ac95c877.png"],basePrice: 18.30,},
+ 
+  {name: "Tote Bag",category: "bag", description: "13.5 inches x 13.5 inches x 4 inches customizable tote bag, available in multiple colors.",images: ["https://raw.githubusercontent.com/diminfomacon-beep/store-app-full-checkout/main/product-pics/10632230_31.png","https://raw.githubusercontent.com/diminfomacon-beep/store-app-full-checkout/main/product-pics/10632229_31.png","https://raw.githubusercontent.com/diminfomacon-beep/store-app-full-checkout/main/product-pics/10632228_2.png"], basePrice: 10.50,variations: [{ label: "Black", extra: 0 },{ label: "White", extra: 0 },{ label: "Natural", extra: 0 },]},
+
+  {name: "Ceramic Coffee Mug - 15oz", category: "mug",description: "Ceramic coffee mug perfect for gifting and fully customizable print.",images: ["https://raw.githubusercontent.com/diminfomacon-beep/store-app-full-checkout/main/product-pics/15CERAMICMUG1.png" ],basePrice: 8.00,},
+
+  {name: "Ceramic Heat Changing Coffee Mug - 15oz", category: "mug",description: "Perfect for gifting. Changes color with hot liquid. Customizable.",images: ["https://raw.githubusercontent.com/diminfomacon-beep/store-app-full-checkout/main/product-pics/ceramic%20mug.png" ],basePrice: 9.00,},
+ 
+  {name: "Glass Coffee Mug - 15oz", category: "mug",description: "Glitter globe glass coffee mug with woodes straw lid and clear plastic straw. ",images: ["https://raw.githubusercontent.com/diminfomacon-beep/store-app-full-checkout/main/product-pics/15SUBGLASSGLITTERGLOBEMUG21_b7891d44-d6c4-40fd-8855-aabde5a38081.png"],basePrice: 13.90,},
+  
+  {name: "Aluminum Spray Bottle - 16oz", category: "home",description: "Useful spray bottle withscrew-on spray head.",images: ["https://raw.githubusercontent.com/diminfomacon-beep/store-app-full-checkout/main/product-pics/16SUBSPRAY1.png"],basePrice: 8.50,},
+
+  {name: "Matte Glass Coffee Mug - 17oz", category: "mug",description: "Matte finish glass coffee mug with bamboo lid and clear straw included.",images: ["https://raw.githubusercontent.com/diminfomacon-beep/store-app-full-checkout/main/product-pics/17SUBGLASSCOFFEEMATTE1_5a1ee9c7-f6d0-49ba-9de5-75cd392a8b1f.png"],basePrice: 9.00,}
+
+];
+
+var cart = JSON.parse(localStorage.getItem("dim-cart")) || [];
+
+function saveCart(){
+  localStorage.setItem("dim-cart", JSON.stringify(cart));
+}
+
+function formatCurrency(num){ return "$" + num.toFixed(2); }
+
+function addToCart(name, price) {
+
+  var found = cart.find(c=>c.name===name && c.price===price);
+
+  if(found){
+    found.quantity++;
+  } else {
+    cart.push({
+      name:name,
+      price:price,
+      quantity:1
     });
+  }
+
+  saveCart();
+  updateFloatingCart();
+  renderCartView();
+  renderCheckoutView();
+}
+// Create a container that holds the main image and thumbnails
+
+
+function renderProducts() {
+  var homeGrid = document.getElementById("dim-products-grid");
+  if (!homeGrid) return;
+  homeGrid.innerHTML = "";
+
+  var searchTerm = document.getElementById("dim-search-input")?.value.toLowerCase() || "";
+  var categoryFilter = document.getElementById("dim-filter-select")?.value || "";
+
+  var filteredProducts = products.filter(p => {
+    var matchesSearch = p.name.toLowerCase().includes(searchTerm);
+    var matchesCategory = !categoryFilter || (p.category && p.category === categoryFilter);
+    return matchesSearch && matchesCategory;
+  });
+
+  filteredProducts.forEach(function (p) {
+    var card = document.createElement("div");
+    card.className = "dim-product-card";
+
+    // ===== IMAGE + THUMBNAILS WRAPPER =====
+    var imgWrapper = document.createElement("div");
+    imgWrapper.style.display = "flex";
+    imgWrapper.style.alignItems = "flex-start";
+    imgWrapper.style.gap = "3px";
+    imgWrapper.style.width = "100%";
+    imgWrapper.style.padding = "3px";
+    imgWrapper.style.boxSizing = "border-box";
+    imgWrapper.style.background = "#fff";
+
+    // MAIN IMAGE
+    var img = document.createElement("img");
+    img.className = "main-product-image";
+    img.src = p.images && p.images.length > 0 ? p.images[0] : "https://via.placeholder.com/150";
+    img.style.width = p.images && p.images.length > 1 ? "calc(100% - 35px)" : "100%";
+    img.style.height = "150px";
+    img.style.objectFit = "contain";
+    img.style.background = "#fff";
+    img.style.borderRadius = "4px";
+    imgWrapper.appendChild(img);
+
+    // THUMBNAILS
+    if (p.images && p.images.length > 1) {
+      var thumbWrapper = document.createElement("div");
+      thumbWrapper.style.display = "flex";
+      thumbWrapper.style.flexDirection = "column";
+      thumbWrapper.style.gap = "2px";
+
+      p.images.forEach(src => {
+        var thumb = document.createElement("img");
+        thumb.src = src;
+        thumb.style.width = "20px";
+        thumb.style.height = "20px";
+        thumb.style.objectFit = "contain";
+        thumb.style.cursor = "pointer";
+        thumb.style.borderRadius = "2px";
+        thumb.style.background = "#fff";
+        thumb.addEventListener("click", () => { img.src = src; });
+        thumbWrapper.appendChild(thumb);
+      });
+
+      imgWrapper.appendChild(thumbWrapper);
+    }
+
+    card.appendChild(imgWrapper);
+
+    // ===== NAME =====
+    var nameEl = document.createElement("div");
+    nameEl.className = "dim-product-name";
+    nameEl.style.textAlign = "center";
+    nameEl.style.marginTop = "10px";
+    nameEl.textContent = p.name;
+    card.appendChild(nameEl);
+
+    // ===== DESCRIPTION =====
+    var descEl = document.createElement("p");
+    descEl.style.fontSize = "12px";
+    descEl.style.color = "#666";
+    descEl.style.margin = "8px 0";
+    descEl.style.minHeight = "30px";
+    descEl.style.textAlign = "center";
+    descEl.textContent = p.description;
+    card.appendChild(descEl);
+
+    // ===== PRICE =====
+    var priceEl = document.createElement("div");
+    priceEl.className = "dim-product-price";
+    priceEl.style.fontWeight = "bold";
+    priceEl.style.marginBottom = "8px";
+    priceEl.style.color = "#000";
+    priceEl.style.textAlign = "center";
+    if (p.variations && p.variations.length > 0) {
+      priceEl.innerHTML = `<span style="font-size:10px;">From </span>${formatCurrency(p.basePrice)}`;
+    } else {
+      priceEl.textContent = formatCurrency(p.basePrice);
+    }
+    card.appendChild(priceEl);
+
+      // ===== VARIATION + QUANTITY =====
+    var rowWrapper = document.createElement("div");
+    rowWrapper.style.display = "flex";
+    rowWrapper.style.gap = "6px";
+    rowWrapper.style.alignItems = "center";
+
+    // Create variation select if available
+    var select = null;
+    if (p.variations && p.variations.length > 0) {
+        select = document.createElement("select");
+        select.className = "dim-variation-select";
+        var placeholder = document.createElement("option");
+        placeholder.textContent = "Select Option";
+        placeholder.disabled = true;
+        placeholder.selected = true;
+        select.appendChild(placeholder);
+
+        p.variations.forEach(v => {
+            var opt = document.createElement("option");
+            opt.value = v.extra;
+            opt.textContent = v.label + " (" + formatCurrency(p.basePrice + v.extra) + ")";
+            select.appendChild(opt);
+        });
+
+        // Fill remaining space
+        select.style.flex = "1";
+        select.style.display = "block";
+
+        rowWrapper.appendChild(select);
+    }
+
+    // Quantity input (always)
+    var qtyInput = document.createElement("input");
+    qtyInput.type = "number";
+    qtyInput.value = 1;
+    qtyInput.min = 1;
+    qtyInput.style.width = "40px"; // fixed width
+    qtyInput.style.boxSizing = "border-box";
+    qtyInput.style.height = "25px"; // standard height
+    qtyInput.style.display = "block";
+
+    // Center quantity if no variation
+    if (!select) {
+        rowWrapper.style.justifyContent = "center";
+    } 
+
+    rowWrapper.appendChild(qtyInput);
+    card.appendChild(rowWrapper);
+
+    // ===== ADD TO CART BUTTON =====
+    var btn = document.createElement("button");
+    btn.className = "dim-btn dim-btn-primary";
+    btn.textContent = "Add to Cart";
+    btn.style.width = "100%";
+    btn.style.marginTop = "4px";
+    btn.addEventListener("click", () => {
+      var finalPrice = p.basePrice;
+      var displayName = p.name;
+
+      if (select) {
+        if (select.selectedIndex === 0) {
+          alert("Please select an option first.");
+          return;
+        }
+        var extra = parseFloat(select.value);
+        var selectedText = select.options[select.selectedIndex].textContent.split(' (')[0];
+        finalPrice += extra;
+        displayName += " (" + selectedText + ")";
+      }
+
+      var qty = parseInt(qtyInput.value) || 1;
+      for (let i = 0; i < qty; i++) {
+        addToCart(displayName, finalPrice);
+      }
+    });
+
+    card.appendChild(btn);
+    homeGrid.appendChild(card);
+  });
+}
+
+function updateFloatingCart(){
+  var countEl = document.getElementById("dim-floating-cart-count");
+  if(!countEl) return;
+
+  var count = cart.reduce((total,item)=> total + (item.quantity || 1),0);
+  countEl.textContent = count;
+}
+
+function switchView(view){
+  ["home","cart","checkout"].forEach(v=>{
+    var el = document.getElementById("dim-view-"+v);
+    if(el) el.classList.toggle("active", v===view);
+    var btn = document.querySelector('.dim-nav-btn[data-view="'+v+'"]');
+    if(btn) btn.classList.toggle("active", v===view);
+  });
+
+  if(view==="home") renderProducts();
+  if(view==="cart") renderCartView();
+  if(view==="checkout") renderCheckoutView();
+}
+
+function renderCartView() {
+  var tbody = document.getElementById("dim-cart-body"); 
+  if(!tbody) return;
+  var table = document.getElementById("dim-cart-table");
+  var emptyMsg = document.getElementById("dim-cart-empty");
+  var subtotalEl = document.getElementById("dim-cart-subtotal");
+
+  tbody.innerHTML = ""; 
+  var subtotal = 0;
+
+  if(cart.length === 0){ 
+    emptyMsg.style.display = "block"; 
+    table.style.display = "none"; 
+    subtotalEl.textContent = "$0.00"; 
+    return; 
+  }
+  
+  emptyMsg.style.display = "none"; 
+  table.style.display = "table";
+
+  cart.forEach((item, index) => {
+    var q = item.quantity || 1;
+    var lineTotal = item.price * q;
+    subtotal += lineTotal;
+
+    var tr = document.createElement("tr");
+
+    tr.innerHTML = `
+      <td>${item.name}</td>
+      <td>${formatCurrency(item.price)}</td>
+      <td>
+        <button onclick="changeQty(${index},-1)">-</button>
+        ${q}
+        <button onclick="changeQty(${index},1)">+</button>
+      </td>
+      <td>${formatCurrency(lineTotal)}</td>
+      <td><button onclick="removeCartItem(${index})" style="cursor:pointer; font-size: 8px; background: none; border: none;">✖️</button></td>
+    `;
+
+    tbody.appendChild(tr);
+  });
+
+  subtotalEl.textContent = formatCurrency(subtotal);
+}
+
+// New function to remove item completely
+function removeCartItem(index){
+  cart.splice(index, 1); // remove item
+  saveCart();
+  updateFloatingCart();
+  renderCartView();
+  renderCheckoutView();
+}
+function changeQty(index, amount){
+
+  cart[index].quantity += amount;
+
+  if(cart[index].quantity <= 0){
+    cart.splice(index,1);
+  }
+
+  saveCart();
+  updateFloatingCart();
+  renderCartView();
+  renderCheckoutView();
+}
+
+function validateCheckout(){
+
+  var terms = document.getElementById("dim-terms-checkbox");
+  if(!terms.checked){
+    alert("Please agree to the Terms and Conditions.");
+    return false;
+  }
+
+  var shippingSelected = document.getElementById("dim-delivery-shipping").checked;
+  var pickupSelected = document.getElementById("dim-delivery-pickup").checked;
+
+  if(shippingSelected){
+
+    var requiredFields = [
+      "dim-ship-name",
+      "dim-ship-email",
+      "dim-ship-address1",
+      "dim-ship-city",
+      "dim-ship-state",
+      "dim-ship-zip"
+    ];
+
+    for(var id of requiredFields){
+      var field = document.getElementById(id);
+
+      if(!field || field.value.trim() === ""){
+        alert("Please complete all shipping information.");
+        field.focus();
+        return false;
+      }
+    }
+
+  }
+
+  if(pickupSelected){
+
+    var requiredFields = [
+      "dim-pickup-name",
+      "dim-pickup-email"
+    ];
+
+    for(var id of requiredFields){
+      var field = document.getElementById(id);
+
+      if(!field || field.value.trim() === ""){
+        alert("Please complete the pickup information.");
+        field.focus();
+        return false;
+      }
+    }
+
+  }
+
+  return true;
+
+}
+
+document.getElementById("dim-paypal-form").addEventListener("submit", function(e){
+
+  if(cart.length === 0){
+    alert("Your cart is empty.");
+    e.preventDefault();
+    return;
+  }
+
+  if(!validateCheckout()){
+    e.preventDefault(); // THIS stops PayPal
+    return;
+  }
+
+  // Build PayPal cart items
+   cart.forEach((item,index)=>{
+
+    var i = index + 1;
+
+    hiddenFields.innerHTML += `
+      <input type="hidden" name="item_name_${i}" value="${item.name}">
+      <input type="hidden" name="amount_${i}" value="${item.price}">
+      <input type="hidden" name="quantity_${i}" value="${item.quantity}">
+    `;
+
+  });
+
+});
+
+function renderCheckoutView(){
+  var tbody=document.getElementById("dim-checkout-items-body"); if(!tbody) return;
+  var emptyMsg=document.getElementById("dim-checkout-empty");
+  var main=document.getElementById("dim-checkout-main");
+  tbody.innerHTML="";
+
+  if(cart.length===0){ emptyMsg.style.display="block"; main.style.display="none"; return; }
+  emptyMsg.style.display="none"; main.style.display="block";
+
+  var subtotal=0;
+  cart.forEach(item=>{
+    var q=item.quantity||1; var lineTotal=item.price*q; subtotal+=lineTotal;
+    var tr=document.createElement("tr");
+    ["name","price","quantity","total"].forEach((k,i)=>{
+      var td=document.createElement("td");
+      td.textContent = i===1 ? formatCurrency(item.price) : i===2 ? String(q) : i===3 ? formatCurrency(lineTotal) : item.name;
+      tr.appendChild(td);
+    });
+    tbody.appendChild(tr);
+  });
+
+  var shipping=0, tax=0, total=subtotal+shipping+tax;
+  document.getElementById("dim-checkout-subtotal").textContent=formatCurrency(subtotal);
+  document.getElementById("dim-checkout-shipping").textContent=formatCurrency(shipping);
+  document.getElementById("dim-checkout-tax").textContent=formatCurrency(tax);
+  document.getElementById("dim-checkout-total").textContent=formatCurrency(total);
+}
+
+      // Initial render
+    document.addEventListener("DOMContentLoaded",()=>{
+
+      renderProducts();
+      renderCartView();
+      renderCheckoutView();
+      updateFloatingCart();
+      
+      document.querySelectorAll(".dim-nav-btn").forEach(btn=>{
+        btn.addEventListener("click", ()=>{
+          switchView(btn.dataset.view);
+        });
+      });
+
+      document.getElementById("dim-search-input")
+        .addEventListener("input", renderProducts);
+
+      document.getElementById("dim-filter-select")
+        .addEventListener("change", renderProducts);
+
+      document.getElementById("dim-floating-cart-button")
+        .addEventListener("click", ()=> switchView("cart"));
+
+      document.getElementById("dim-cart-go-checkout")
+        .addEventListener("click", ()=> switchView("checkout"));
+
+      document.getElementById("dim-checkout-back-cart")
+        .addEventListener("click", ()=> switchView("cart"));
+
+      document.getElementById("dim-paypal-checkout-button").onclick = function(){
+
+          if(cart.length === 0){
+            alert("Your cart is empty.");
+            return false;
+          }
+
+          if(!validateCheckout()){
+            return false;
+          }
+
+          var hiddenFields = document.getElementById("dim-paypal-hidden-fields");
+          hiddenFields.innerHTML = "";
+
+          cart.forEach(function(item,index){
+            var i = index + 1;
+
+            var name = document.createElement("input");
+            name.type = "hidden";
+            name.name = "item_name_" + i;
+            name.value = item.name;
+
+            var price = document.createElement("input");
+            price.type = "hidden";
+            price.name = "amount_" + i;
+            price.value = item.price;
+
+            var qty = document.createElement("input");
+            qty.type = "hidden";
+            qty.name = "quantity_" + i;
+            qty.value = item.quantity;
+
+            hiddenFields.appendChild(name);
+            hiddenFields.appendChild(price);
+            hiddenFields.appendChild(qty);
+          });
+
+          document.getElementById("dim-paypal-form").submit();
+        };
+      });
+      function toggleDelivery(){
+
+        var shipping = document.getElementById("dim-delivery-shipping").checked;
+
+        document.getElementById("dim-shipping-section").style.display = shipping ? "block" : "none";
+        document.getElementById("dim-pickup-section").style.display = shipping ? "none" : "block";
+
+      }
+
+      document.getElementById("dim-delivery-shipping").addEventListener("change", toggleDelivery);
+      document.getElementById("dim-delivery-pickup").addEventListener("change", toggleDelivery);
+
+      toggleDelivery();
+
+      document.getElementById("dim-clear-cart-btn").addEventListener("click", () => {
+        if(confirm("Are you sure you want to clear your cart?")) {
+          cart = [];
+          localStorage.removeItem("dim-cart");
+          renderCartView();
+          updateFloatingCart();
+          renderCheckoutView();
+        }
+      });
 </script>
-</body>
-</html>
