@@ -671,32 +671,23 @@
 </div>
 
 <script>
-var products = [
-  {name: "Rooted in Christ T-Shirt",category: "apparel",description: "High-quality graphic tee featuring the Rooted in Christ design.",images: ["https://raw.githubusercontent.com/diminfomacon-beep/store-app-full-checkout/main/product-pics/Rooted%20in%20Christ.jpg"],basePrice: 15.99,variations: [{ label: "Small", extra: 0 },{ label: "Medium", extra: 0 },{ label: "XL", extra: 2.00 },{ label: "XXL", extra: 4.00 }]},
-
-  {name: "Cardboard Puzzle",category: "games",description: "9.5x7.5 inches, 30 pieces. Customize it with memories, kids art or whatever your heart desires.",images: ["https://raw.githubusercontent.com/diminfomacon-beep/store-app-full-checkout/main/product-pics/SFS-SPUZ30puzzle_1.png"],basePrice: 10.00},
-
-  {name: "Coffee Cup - 10oz", category: "mug",description: "Double-wall vacuum insulated cup with tinted sliding lid",images: ["https://raw.githubusercontent.com/diminfomacon-beep/store-app-full-checkout/main/product-pics/Coffee%20Mug%20Tumbler.png",],basePrice: 12.00},
-
-  {name: "Candle Jar",category: "home",description: "10oz glass candle jar. Diameter 10 inches and height 3.7 inches. Perfect for gifting and fully customizable",images: ["https://raw.githubusercontent.com/diminfomacon-beep/store-app-full-checkout/main/product-pics/Candle%20Jar.png","https://raw.githubusercontent.com/diminfomacon-beep/store-app-full-checkout/main/product-pics/10CANDLECLEAR1.png"],basePrice: 8.00,variations: [{label: "White", extra: 0},{label: "Clear", extra: 0}]},
-
-  {name: "Kids Water Bottle - 12oz",category: "bottles",description: "Leak proof flip top lid and built in internal straw. Avaiable in multiple colors.",images: ["https://raw.githubusercontent.com/diminfomacon-beep/store-app-full-checkout/main/product-pics/12oz%20Sippy.png","https://raw.githubusercontent.com/diminfomacon-beep/store-app-full-checkout/main/product-pics/12oz%20Sippy%20Cover.png","https://raw.githubusercontent.com/diminfomacon-beep/store-app-full-checkout/main/product-pics/12SUBSIPPYBLUE1.png","https://raw.githubusercontent.com/diminfomacon-beep/store-app-full-checkout/main/product-pics/12oz%20Sippy%20Bottom.png"],basePrice: 15.50,variations: [{label: "Pink with green", extra: 0},{label: "Blue with gray", extra: 0},{label: "Red with gray", extra: 0},{label: "Black with gray", extra: 0},{label: "Pink with Gray", extra: 0},{label: "Orange with yellow", extra: 0}]},
-  
-  {name: "Stemless Wine Glass - 12oz", category: "tumbler",description: "Stemless tumbler shape wineglass withdouble-wall vacuum insulated and clear sliding lid. Comes with a clear straw.",images: ["https://raw.githubusercontent.com/diminfomacon-beep/store-app-full-checkout/main/product-pics/12SUBSTEMLESS1_b840e95b-9ec6-4372-b0e2-1229ac95c877.png"],basePrice: 18.30,},
- 
-  {name: "Tote Bag",category: "bag", description: "13.5 inches x 13.5 inches x 4 inches customizable tote bag, available in multiple colors.",images: ["https://raw.githubusercontent.com/diminfomacon-beep/store-app-full-checkout/main/product-pics/10632230_31.png","https://raw.githubusercontent.com/diminfomacon-beep/store-app-full-checkout/main/product-pics/10632229_31.png","https://raw.githubusercontent.com/diminfomacon-beep/store-app-full-checkout/main/product-pics/10632228_2.png"], basePrice: 10.50,variations: [{ label: "Black", extra: 0 },{ label: "White", extra: 0 },{ label: "Natural", extra: 0 },]},
-
-  {name: "Ceramic Coffee Mug - 15oz", category: "mug",description: "Ceramic coffee mug perfect for gifting and fully customizable print.",images: ["https://raw.githubusercontent.com/diminfomacon-beep/store-app-full-checkout/main/product-pics/15CERAMICMUG1.png" ],basePrice: 8.00,},
-
-  {name: "Ceramic Heat Changing Coffee Mug - 15oz", category: "mug",description: "Perfect for gifting. Changes color with hot liquid. Customizable.",images: ["https://raw.githubusercontent.com/diminfomacon-beep/store-app-full-checkout/main/product-pics/ceramic%20mug.png" ],basePrice: 9.00,},
- 
-  {name: "Glass Coffee Mug - 15oz", category: "mug",description: "Glitter globe glass coffee mug with woodes straw lid and clear plastic straw. ",images: ["https://raw.githubusercontent.com/diminfomacon-beep/store-app-full-checkout/main/product-pics/15SUBGLASSGLITTERGLOBEMUG21_b7891d44-d6c4-40fd-8855-aabde5a38081.png"],basePrice: 13.90,},
-  
-  {name: "Aluminum Spray Bottle - 16oz", category: "home",description: "Useful spray bottle withscrew-on spray head.",images: ["https://raw.githubusercontent.com/diminfomacon-beep/store-app-full-checkout/main/product-pics/16SUBSPRAY1.png"],basePrice: 8.50,},
-
-  {name: "Matte Glass Coffee Mug - 17oz", category: "mug",description: "Matte finish glass coffee mug with bamboo lid and clear straw included.",images: ["https://raw.githubusercontent.com/diminfomacon-beep/store-app-full-checkout/main/product-pics/17SUBGLASSCOFFEEMATTE1_5a1ee9c7-f6d0-49ba-9de5-75cd392a8b1f.png"],basePrice: 9.00,}
-
-];
+  var products = [
+      {name: "Rooted in Christ T-Shirt",category: "tshirt",description: "High-quality graphic tee featuring the Rooted in Christ design.",images: ["https://raw.githubusercontent.com/diminfomacon-beep/store-app-full-checkout/main/product-pics/Rooted%20in%20Christ.jpg"],basePrice: 15.99,variations: [{ label: "Small", extra: 0 },{ label: "Medium", extra: 0 },{ label: "XL", extra: 2.00 },{ label: "XXL", extra: 4.00 }]},
+      {name: "Cardboard Puzzle",category: "games",description: "9.5x7.5 inches, 30 pieces. Customize it with memories, kids art or whatever your heart desires.",images: ["https://raw.githubusercontent.com/diminfomacon-beep/store-app-full-checkout/main/product-pics/SFS-SPUZ30puzzle_1.png"],basePrice: 10.00},
+      {name: "Coffee Cup - 10oz", category: "mug",description: "Double-wall vacuum insulated cup with tinted sliding lid",images: ["https://raw.githubusercontent.com/diminfomacon-beep/store-app-full-checkout/main/product-pics/Coffee%20Mug%20Tumbler.png",],basePrice: 12.00},
+      {name: "Candle Jar",category: "home",description: "10oz glass candle jar. Diameter 10 inches and height 3.7 inches. Perfect for gifting and fully customizable",images: ["https://raw.githubusercontent.com/diminfomacon-beep/store-app-full-checkout/main/product-pics/Candle%20Jar.png","https://raw.githubusercontent.com/diminfomacon-beep/store-app-full-checkout/main/product-pics/10CANDLECLEAR1.png"],basePrice: 8.00,variations: [{label: "White", extra: 0},{label: "Clear", extra: 0}]},
+      {name: "Kids Water Bottle - 12oz",category: "bottles",description: "Leak proof flip top lid and built in internal straw. Avaiable in multiple colors.",images: ["https://raw.githubusercontent.com/diminfomacon-beep/store-app-full-checkout/main/product-pics/12oz%20Sippy.png","https://raw.githubusercontent.com/diminfomacon-beep/store-app-full-checkout/main/product-pics/12oz%20Sippy%20Cover.png","https://raw.githubusercontent.com/diminfomacon-beep/store-app-full-checkout/main/product-pics/12SUBSIPPYBLUE1.png","https://raw.githubusercontent.com/diminfomacon-beep/store-app-full-checkout/main/product-pics/12oz%20Sippy%20Bottom.png"],basePrice: 15.50,variations: [{label: "Pink with green", extra: 0},{label: "Blue with gray", extra: 0},{label: "Red with gray", extra: 0},{label: "Black with gray", extra: 0},{label: "Pink with Gray", extra: 0},{label: "Orange with yellow", extra: 0}]},
+      {name: "Stemless Wine Glass - 12oz", category: "tumbler",description: "Stemless tumbler shape wineglass withdouble-wall vacuum insulated and clear sliding lid. Comes with a clear straw.",images: ["https://raw.githubusercontent.com/diminfomacon-beep/store-app-full-checkout/main/product-pics/12SUBSTEMLESS1_b840e95b-9ec6-4372-b0e2-1229ac95c877.png"],basePrice: 18.30,},
+      {name: "Tote Bag",category: "bag", description: "13.5 inches x 13.5 inches x 4 inches customizable tote bag, available in multiple colors.",images: ["https://raw.githubusercontent.com/diminfomacon-beep/store-app-full-checkout/main/product-pics/10632230_31.png","https://raw.githubusercontent.com/diminfomacon-beep/store-app-full-checkout/main/product-pics/10632229_31.png","https://raw.githubusercontent.com/diminfomacon-beep/store-app-full-checkout/main/product-pics/10632228_2.png"], basePrice: 10.50,variations: [{ label: "Black", extra: 0 },{ label: "White", extra: 0 },{ label: "Natural", extra: 0 },]},
+      {name: "Ceramic Coffee Mug - 15oz", category: "mug",description: "Ceramic coffee mug perfect for gifting and fully customizable print.",images: ["https://raw.githubusercontent.com/diminfomacon-beep/store-app-full-checkout/main/product-pics/15CERAMICMUG1.png" ],basePrice: 8.00,},
+      {name: "Ceramic Heat Changing Coffee Mug - 15oz", category: "mug",description: "Perfect for gifting. Changes color with hot liquid. Customizable.",images: ["https://raw.githubusercontent.com/diminfomacon-beep/store-app-full-checkout/main/product-pics/ceramic%20mug.png" ],basePrice: 9.00,},
+      {name: "Glass Coffee Mug - 15oz", category: "mug",description: "Glitter globe glass coffee mug with woodes straw lid and clear plastic straw. ",images: ["https://raw.githubusercontent.com/diminfomacon-beep/store-app-full-checkout/main/product-pics/15SUBGLASSGLITTERGLOBEMUG21_b7891d44-d6c4-40fd-8855-aabde5a38081.png"],basePrice: 13.90,},
+      {name: "Aluminum Spray Bottle - 16oz", category: "home",description: "Useful spray bottle withscrew-on spray head.",images: ["https://raw.githubusercontent.com/diminfomacon-beep/store-app-full-checkout/main/product-pics/16SUBSPRAY1.png"],basePrice: 8.50,},
+      {name: "Glass Coffee Mug", category: "mug",description: "17oz matte glass coffee mug. Custmizable and perfect for gifting.",images: ["https://raw.githubusercontent.com/diminfomacon-beep/store-app-full-checkout/main/product-pics/17SUBGLASSCOFFEEMATTE1_5a1ee9c7-f6d0-49ba-9de5-75cd392a8b1f.png"],basePrice: 9.00,},
+      {name: "Soap Dispenser", category: "home",description: "18oz handsoap dispenser. Design it your way for a personalized feel.",images: ["https://raw.githubusercontent.com/diminfomacon-beep/store-app-full-checkout/main/product-pics/HOGG-248.png"],basePrice: 15.00,},
+      {name: "Blanket", category: "home",description: "Multiple layout designs, soft minky material. Capture you precious moments for a lifetime.",images: ["https://raw.githubusercontent.com/diminfomacon-beep/store-app-full-checkout/main/product-pics/O1CN016TVKnN2Eb34CBdD9t__3230388762-0-cib_1_1.png","https://raw.githubusercontent.com/diminfomacon-beep/store-app-full-checkout/main/product-pics/O1CN01IuHBt12Eb34QqFdtd__3230388762-0-cib_1.png","https://raw.githubusercontent.com/diminfomacon-beep/store-app-full-checkout/main/product-pics/SUBBLANKETS1_24212936-9b47-4d9a-b46b-2fb9ab646052.png","https://raw.githubusercontent.com/diminfomacon-beep/store-app-full-checkout/main/product-pics/ScreenShot2022-07-13at10.20.44AM.png","https://raw.githubusercontent.com/diminfomacon-beep/store-app-full-checkout/main/product-pics/blanket20measurement.png","https://raw.githubusercontent.com/diminfomacon-beep/store-app-full-checkout/main/product-pics/blanket9measure.png","https://raw.githubusercontent.com/diminfomacon-beep/store-app-full-checkout/main/product-pics/moonblanksetsize.png","https://raw.githubusercontent.com/diminfomacon-beep/store-app-full-checkout/main/product-pics/pawsizeblanket.png"],basePrice: 32.00,variations: [{ label: "14 Panel Moon", extra: 38.00 },{ label: "15 Panel Paw", extra: 36.00 },{ label: "9 Panel", extra: 34.00 },{ label: "20 Panel", extra: 32.00 }]},
+      {name: "20oz Skinny Tumbler", category: "tumbler",description: "Skinny tumblers is a variety of color options. Duo tumblers comes with 2 lids. Customizable.",images: ["https://raw.githubusercontent.com/diminfomacon-beep/store-app-full-checkout/main/product-pics/20SUBDUOSK1.png"," https://raw.githubusercontent.com/diminfomacon-beep/store-app-full-checkout/main/product-pics/20SUBSKINNYEDGEHOLOWHITE1.png"," https://raw.githubusercontent.com/diminfomacon-beep/store-app-full-checkout/main/product-pics/20SUBMETGLITWHITE1.png"," https://raw.githubusercontent.com/diminfomacon-beep/store-app-full-checkout/main/product-pics/20oz%20Skinny%20Tumbler.png"," https://raw.githubusercontent.com/diminfomacon-beep/store-app-full-checkout/main/product-pics/skinny%20color.png"," https://raw.githubusercontent.com/diminfomacon-beep/store-app-full-checkout/main/product-pics/ombre%20group.png"],basePrice: 16.99,variations: [{ label: "Duo Skinny White w/ 2 lids", extra: 18.99 },{ label: "Glow Skinny", extra:18.99 },{ label: "Holographic Skinny", extra: 19.99 },{ label: "Metallic Glitter Skinny", extra: 18.99 },{ label: "Skinny White", extra:16.99 },{ label: "Skinny Loving Lime", extra: 17.99 },{ label: "Skinny Sweet Sunshine", extra: 17.99 },{ label: "Skinny Playful Petals", extra: 17.99 },{ label: "Skinny Cupids Crush", extra: 17.99 },{ label: "Duo Skinny Ombre Sugarplum", extra: 18.99 },{ label: "Duo Skinny Ombre Mulled Wine", extra: 18.99 },{ label: "Duo Skinny Ombre Cranberry Spice", extra: 18.99 },{ label: "Duo Skinny Ombre Silent Night", extra: 18.99 },{ label: "Duo Skinny Ombre Wintersky", extra: 18.99 },{ label: "Duo Skinny Ombre Icy Wonderland", extra: 18.99 },{ label: "Duo Skinny Ombre Peppermint Cream", extra: 18.99 }]}
+  ];
 
 var cart = JSON.parse(localStorage.getItem("dim-cart")) || [];
 
@@ -770,15 +761,18 @@ function renderProducts() {
     // THUMBNAILS
     if (p.images && p.images.length > 1) {
       var thumbWrapper = document.createElement("div");
-      thumbWrapper.style.display = "flex";
-      thumbWrapper.style.flexDirection = "column";
+      thumbWrapper.style.display = "grid";
+      thumbWrapper.style.gridTemplateColumns = "repeat(2, 20px)";
+      thumbWrapper.style.gridAutoRows = "20px";
       thumbWrapper.style.gap = "2px";
+      thumbWrapper.style.maxHeight = "150px";
+      thumbWrapper.style.overflow = "hidden";
 
       p.images.forEach(src => {
         var thumb = document.createElement("img");
         thumb.src = src;
         thumb.style.width = "20px";
-        thumb.style.height = "20px";
+        thumb.style.height = "25px";
         thumb.style.objectFit = "contain";
         thumb.style.cursor = "pointer";
         thumb.style.borderRadius = "2px";
@@ -836,7 +830,7 @@ function renderProducts() {
         select = document.createElement("select");
         select.className = "dim-variation-select";
         var placeholder = document.createElement("option");
-        placeholder.textContent = "Select Option";
+        placeholder.textContent = "Option";
         placeholder.disabled = true;
         placeholder.selected = true;
         select.appendChild(placeholder);
