@@ -677,7 +677,7 @@ box-shadow:0 10px 18px rgba(0,0,0,0.18);
   </div>
 </div>
 
-<!-- Floating Cart -->
+
 <!-- Floating Cart Button + Slide-Out Drawer -->
 <div class="dim-floating-cart-wrapper">
   <!-- Floating Cart Button -->
@@ -687,6 +687,17 @@ box-shadow:0 10px 18px rgba(0,0,0,0.18);
       <path d="M7 4h-2l-1 2h2l2.6 7.59L7.24 16.04C7.09 16.32 7 16.65 7 17a2 2 0 1 0 2 2h6a2 2 0 1 0 2-2c0-.35-.09-.68-.24-.96l1.88-3.76A1 1 0 0 0 18 10H10l-.75-2H20V6H8.42L7.7 4.29A1 1 0 0 0 7 4z"/>
     </svg>
   </div>
+
+  <!-- Overlay (hidden initially) -->
+  <div id="dim-cart-overlay" style="
+      position: fixed;
+      top:0; left:0; width:100%; height:100%;
+      background: rgba(0,0,0,0.4);
+      z-index: 9998;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.3s ease;
+  "></div>
 
   <!-- Slide-Out Cart Drawer -->
   <div id="dim-cart-drawer" style="
@@ -702,7 +713,6 @@ box-shadow:0 10px 18px rgba(0,0,0,0.18);
       transition: transform 0.3s ease;
       overflow-y: auto;
       padding: 20px;
-      display: block;
   ">
       <h3 style="text-align:center;">Your Cart</h3>
       <div id="dim-drawer-cart-body"></div>
@@ -731,9 +741,6 @@ const saveCart = () => {
     updateFloatingCart();
 };
 
-/**
- * CORE RENDER FUNCTION
- */
 function calculatePrice(product, variationSelect, styleSelect, sizeExtra = 0) {
 
     let price = product.basePrice;
@@ -754,6 +761,7 @@ function calculatePrice(product, variationSelect, styleSelect, sizeExtra = 0) {
     return Number(price.toFixed(2));
 
 }
+
 function renderProducts() {
     const homeGrid = document.getElementById("dim-products-grid");
     if (!homeGrid) return;
@@ -808,9 +816,18 @@ function renderProducts() {
             <div class="controls-row" style="display:flex; gap:6px; align-items:center; justify-content:center; margin-bottom:10px;"></div>
             <div class="size-section" style="margin-bottom:15px;"></div>
         </div>
-
+        <button class="dim-customize-btn">Customize</button>
         <button class="dim-btn dim-btn-primary add-to-cart-btn" style="width:100%; margin-top:auto;">Add to Cart</button>
     `;
+
+    // Inside pageProducts.forEach(p => { ... })
+
+    const customizeBtn = card.querySelector(".dim-customize-btn");
+    customizeBtn.dataset.productId = p.id; // attach the ID
+    customizeBtn.onclick = () => {
+        localStorage.setItem("dim-selected-product", JSON.stringify(p));
+        window.open("studio.html", "_blank");
+    };
 
     // ... the rest of your logic to append selects and size inputs remains the same
 
@@ -977,58 +994,66 @@ function removeCartItem(index) {
     renderCartView();
     renderCheckoutView();
 }
-// Existing cart array and functions assumed
-// let cart = []; // already exists
-// function formatCurrency(), changeQty(), saveCart(), renderCartView() etc.
 
-// Drawer toggle
-// Drawer toggle
 const drawer = document.getElementById("dim-cart-drawer");
 const cartBtn = document.getElementById("dim-floating-cart-button");
+const overlay = document.getElementById("dim-cart-overlay");
+
+function openDrawer() {
+    renderDrawerCart();
+    drawer.style.transform = "translateX(0%)";
+    overlay.style.visibility = "visible";
+    overlay.style.opacity = "1";
+}
+
+function closeDrawer() {
+    drawer.style.transform = "translateX(100%)";
+    overlay.style.opacity = "0";
+    setTimeout(() => overlay.style.visibility = "hidden", 300);
+}
 
 cartBtn.addEventListener("click", () => {
     if(drawer.style.transform === "translateX(0%)") {
-        drawer.style.transform = "translateX(100%)"; // hide
+        closeDrawer();
     } else {
-        renderDrawerCart();           // populate cart
-        drawer.style.transform = "translateX(0%)";   // show
+        openDrawer();
     }
 });
 
-// Optional: close drawer if clicking outside
-document.addEventListener("click", e => {
-    if(!drawer.contains(e.target) && !cartBtn.contains(e.target)) {
-        drawer.style.transform = "translateX(100%)";
-    }
-});
-
+// Close drawer if clicking overlay
+overlay.addEventListener("click", closeDrawer);
 // Render drawer contents
 function renderDrawerCart() {
     const container = document.getElementById("dim-drawer-cart-body");
+    if (!container) return;
     container.innerHTML = "";
 
-    if(cart.length === 0){
+    if (cart.length === 0) {
         container.innerHTML = "<p style='text-align:center;'>Your cart is empty.</p>";
         return;
     }
 
-    cart.forEach((item,index)=>{
+    cart.forEach((item, index) => {
         const div = document.createElement("div");
         div.style.cssText = "display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;";
 
         div.innerHTML = `
-            <div style="flex:1;">${item.name} (${item.quantity})</div>
-            <div style="flex-shrink:0;">${formatCurrency(item.price * item.quantity)}</div>
-            <button style="margin-left:5px;" onclick="changeQty(${index},-1)">-</button>
-            <button onclick="changeQty(${index},1)">+</button>
+            <div style="display:flex; align-items:center; gap:8px;">
+                ${item.customDesign ? `<img src="${item.customDesign}" style="width:40px; height:40px; object-fit:contain; border:1px solid #ccc; border-radius:4px;">` : ''}
+                <span>${item.name}</span>
+            </div>
+            <div style="display:flex; align-items:center; gap:4px;">
+                ${formatCurrency(item.price * item.quantity)}
+                <button onclick="changeQty(${index},-1)">-</button>
+                <button onclick="changeQty(${index},1)">+</button>
+            </div>
         `;
         container.appendChild(div);
     });
 }
-
 // Checkout button
 document.getElementById("dim-drawer-checkout-btn").addEventListener("click", () => {
-    drawer.style.transform = "translateX(100%)";
+    closeDrawer();
     switchView("checkout"); // or your existing checkout function
 });
 
@@ -1042,9 +1067,12 @@ function updateCartCount() {
 function renderCartView() {
     const tbody = document.getElementById("dim-cart-body");
     const subtotalEl = document.getElementById("dim-cart-subtotal");
+    const cartContainer = document.getElementById("dim-cart-container"); // optional container for thumbnails
     if (!tbody) return;
 
     tbody.innerHTML = "";
+    if (cartContainer) cartContainer.innerHTML = "";
+
     let subtotal = 0;
 
     if (cart.length === 0) {
@@ -1060,9 +1088,14 @@ function renderCartView() {
     cart.forEach((item, index) => {
         const lineTotal = item.price * item.quantity;
         subtotal += lineTotal;
+
+        // Table row
         const tr = document.createElement("tr");
         tr.innerHTML = `
-            <td>${item.name}</td>
+            <td style="display:flex; align-items:center; gap:6px;">
+                ${item.customDesign ? `<img src="${item.customDesign}" style="width:40px; height:40px; object-fit:contain; border:1px solid #ccc; border-radius:4px;">` : ''}
+                <span>${item.name}</span>
+            </td>
             <td>${formatCurrency(item.price)}</td>
             <td>
                 <button onclick="changeQty(${index},-1)">-</button>
@@ -1073,10 +1106,28 @@ function renderCartView() {
             <td><button onclick="removeCartItem(${index})" style="border:none; background:none; cursor:pointer;">✖️</button></td>
         `;
         tbody.appendChild(tr);
+
+        // Drawer / floating cart thumbnails
+        if (cartContainer) {
+            const div = document.createElement("div");
+            div.style.cssText = "display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;";
+            div.innerHTML = `
+                <div style="display:flex; align-items:center; gap:8px;">
+                    ${item.customDesign ? `<img src="${item.customDesign}" style="width:40px; height:40px; object-fit:contain; border:1px solid #ccc; border-radius:4px;">` : ''}
+                    <span>${item.name}</span>
+                </div>
+                <div>
+                    ${formatCurrency(item.price * item.quantity)}
+                    <button style="margin-left:5px;" onclick="changeQty(${index},-1)">-</button>
+                    <button onclick="changeQty(${index},1)">+</button>
+                </div>
+            `;
+            cartContainer.appendChild(div);
+        }
     });
+
     subtotalEl.textContent = formatCurrency(subtotal);
 }
-
 function renderCheckoutView() {
     const tbody = document.getElementById("dim-checkout-items-body");
     const main = document.getElementById("dim-checkout-main");
@@ -1287,8 +1338,6 @@ function renderPagination(totalItems) {
     };
     paginationContainer.appendChild(nextBtn);
 }
-
-
 
 document.addEventListener("DOMContentLoaded", () => {
     renderProducts();
